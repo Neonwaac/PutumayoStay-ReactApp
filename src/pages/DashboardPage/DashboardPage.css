@@ -1,0 +1,6 @@
+.dashboard-page{
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+}

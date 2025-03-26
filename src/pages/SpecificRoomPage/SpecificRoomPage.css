@@ -1,0 +1,10 @@
+.specific-room-page{
+    width: 100%;
+    display: flex;
+}
+.specific-room-page-reviews-title{
+    width: 100%;
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 30px;
+}

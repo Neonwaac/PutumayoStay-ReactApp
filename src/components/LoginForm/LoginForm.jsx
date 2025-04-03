@@ -4,7 +4,7 @@ import "./LoginForm.css";
 import axios from "axios";
 import companyLogo from "../../assets/larger-dark-logo.png";
 import { useNavigate } from "react-router-dom";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -17,14 +17,13 @@ function LoginForm() {
         { username, password }
       );
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.usuario));
       navigate("/");
     } catch (error) {
-        Swal.fire({
-            icon: "error",
-            title: "Error al iniciar sesión",
-            text: "Usuario o contraseña incorrectos",
-          });
+      Swal.fire({
+        icon: "error",
+        title: "Error al iniciar sesión",
+        text: "Usuario o contraseña incorrectos",
+      });
     }
   };
   return (
@@ -49,6 +48,14 @@ function LoginForm() {
           Iniciar Sesión
         </button>
       </form>
+      <button
+        className="login-form-google-button"
+        onClick={() =>
+          (window.location.href = "http://localhost:8077/auth/google/")
+        }
+      >
+        <span>Iniciar Sesión con Google</span>
+      </button>
       <p className="login-form-swap">
         ¿No tienes cuenta?
         <Link to="/register" className="login-form-link">

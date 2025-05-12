@@ -7,40 +7,76 @@ import AppFooter from "../../components/AppFooter/AppFooter";
 import { useNavigate } from "react-router-dom";
 import AddRoomModal from "../../components/AddRoomModal/AddRoomModal";
 import axios from "axios";
+import BestRecomendations from "../../layouts/BestRecomendations/BestRecomendations";
 function RoomsPage() {
   const [user, setUser] = useState("");
+  const [category, setCategory] = useState(null);
+  const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-
+  const changeCategory = (id) => {
+    if(category === id){
+      setCategory(null);
+      return;
+    }
+    setSearch("");
+    setCategory(id);
+  }
+  const changeSearch = (text) => {
+    if (search === text) {
+      setSearch("");
+      return;
+    }
+    setCategory(null);
+    setSearch(text);
+  };
   const [token, setToken] = useState(null);
-    
+  let [maxRoomCards, setMaxRoomCards] = useState(3);
   useEffect(() => {
-      const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-          setToken(storedToken);
+    const updateMaxRoomCards = () => {
+      const width = window.innerWidth;
+
+      if (width >= 1820) {
+        setMaxRoomCards(4);
+      } else if (width >= 1280) {
+        setMaxRoomCards(3);
+      } else if (width >= 768) {
+        setMaxRoomCards(2);
       } else {
-          navigate("/login");
+        setMaxRoomCards(2);
       }
-  }, [navigate]);
-  
+    };
+    updateMaxRoomCards();
+  });
+
   useEffect(() => {
-      const fetchUserByToken = async () => {
-          if (!token) return;
-  
-          try {
-              const response = await axios.get(`http://localhost:8077/usuarios/token/${token}`);
-              setUser(response.data);
-          } catch (error) {
-              console.error("Error al obtener el usuario por token:", error);
-              navigate("/login"); 
-          }
-      };
-  
-      fetchUserByToken();
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
+  useEffect(() => {
+    const fetchUserByToken = async () => {
+      if (!token) return;
+
+      try {
+        const response = await axios.get(
+          `https://localhost:8077/usuarios/token/${token}`
+        );
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error al obtener el usuario por token:", error);
+        navigate("/login");
+      }
+    };
+
+    fetchUserByToken();
   }, [token, navigate]);
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false)
+  const closeModal = () => setIsModalOpen(false);
   return (
     <section className="rooms-page">
       <NavigationBar />
@@ -51,8 +87,15 @@ function RoomsPage() {
             className="rooms-page-filter-search-input"
             type="text"
             placeholder="Busca por nombre de habitación"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                changeSearch(e.target.value);
+              }
+            }}
           ></input>
-          <button className="rooms-page-filter-search-button">
+          <button className="rooms-page-filter-search-button" onClick={(e) => {
+            const input = document.querySelector(".rooms-page-filter-search-input");
+    changeSearch(input.value);}}>
             <FaSearch />
           </button>
         </div>
@@ -60,18 +103,16 @@ function RoomsPage() {
           <p className="rooms-page-filter-category-title">
             ¿Que tipo de habitación buscas?
           </p>
-          <button className="rooms-page-filter-category-option">
-            Estándar
-          </button>
-          <button className="rooms-page-filter-category-option">Doble</button>
-          <button className="rooms-page-filter-category-option">Suite</button>
-          <button className="rooms-page-filter-category-option">
+          <button className="rooms-page-filter-category-option" onClick={(e) => changeCategory(1)}>Estándar</button>
+          <button className="rooms-page-filter-category-option" onClick={(e) => changeCategory(2)}>Doble</button>
+          <button className="rooms-page-filter-category-option" onClick={(e) => changeCategory(3)}>Suite</button>
+          <button className="rooms-page-filter-category-option" onClick={(e) => changeCategory(4)}>
             Suite Jr
           </button>
-          <button className="rooms-page-filter-category-option">
+          <button className="rooms-page-filter-category-option" onClick={(e) => changeCategory(5)}>
             Familiar
           </button>
-          <button className="rooms-page-filter-category-option">
+          <button className="rooms-page-filter-category-option" onClick={(e) => changeCategory(6)}>
             Penthouse
           </button>
         </div>
@@ -86,9 +127,19 @@ function RoomsPage() {
           </button>
         )}
       </div>
-      <RoomsLayout />
+      <RoomsLayout 
+      key={category || search}
+      maxRoomCards={maxRoomCards}
+      category={category}
+      search={search}
+      />
+      <BestRecomendations/>
       <AppFooter />
-      <AddRoomModal isOpen={isModalOpen} onClose={closeModal} id_empresa={user.id}/>
+      <AddRoomModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        id_empresa={user.id}
+      />
     </section>
   );
 }
